@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
-import ChatContainer from "../components/ChatContainer";
 import RightSide from "../components/RIghtside";
+import ChatContainer from "../components/Chatcontainer";
 
 const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -26,6 +26,7 @@ const Home = () => {
         {/* Chat */}
         <div className="bg-transparent h-full overflow-hidden">
           <ChatContainer
+            us
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
           />
