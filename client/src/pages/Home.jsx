@@ -4,7 +4,7 @@ import RightSide from "../components/RIghtside";
 import ChatContainer from "../components/Chatcontainer";
 
 const Home = () => {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState("Hello");
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900">
