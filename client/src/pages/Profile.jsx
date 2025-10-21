@@ -14,7 +14,7 @@ const Profile = ({ selectedUser, setSelectedUser }) => {
               <form
                 onSubmit={(e) => e.preventDefault()}
                 action="/"
-                className="flex flex-col justify-center items-center"
+                className="flex flex-col justify-center items-center bg-emerald-200"
               >
                 <input
                   onChange={(e) => {
