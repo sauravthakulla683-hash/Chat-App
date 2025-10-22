@@ -6,3 +6,14 @@
 ::-webkit-scrollbar {
   display: none;
 }
+@media (max-width: 768px) {
+  .rightside-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    background-color: rgba(30, 30, 50, 0.95);
+  }
+}

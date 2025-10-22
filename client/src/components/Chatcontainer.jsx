@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import assets, { messagesDummyData } from "../assets/assets";
 
-const ChatContainer = ({ selectedUser, shows }) => {
+const ChatContainer = ({ selectedUser, setSelectedUser, shows }) => {
   const currentUserId = "680f50e4f10f3cd28382ecf9";
   const scrollEnd = useRef();
   const clicked = () => {
@@ -28,10 +28,16 @@ const ChatContainer = ({ selectedUser, shows }) => {
           <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
         </p>
         <img
+          onClick={() => setSelectedUser(null)}
+          className="w-6  hover:scale-110 transition-transform md:hidden"
+          src={assets.arrow_icon}
+          alt="back"
+        />
+        <img
           onClick={clicked}
           src={assets.help_icon}
           alt="Help"
-          className="w-6 max-md:hidden hover:scale-110 transition-transform"
+          className="w-6  hover:scale-110 transition-transform max-md:hidden"
         />
       </div>
 
@@ -110,7 +116,7 @@ const ChatContainer = ({ selectedUser, shows }) => {
       </div>
     </div>
   ) : (
-    <div className="flex flex-col items-center justify-center h-full bg-gray-900 rounded-2xl shadow-lg">
+    <div className="flex flex-col items-center justify-center h-full bg-gray-900 rounded-2xl shadow-lg max-md:hidden">
       <img src="/logo.png" alt="" className="w-40 animate-bounce" />
       <p className="text-xl font-semibold text-white mt-4">Get started</p>
     </div>

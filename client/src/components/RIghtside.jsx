@@ -4,8 +4,7 @@ import assets, { imagesDummyData } from "../assets/assets";
 const RIghtside = ({ selectedUser }) => {
   return (
     <div
-      className={`bg-[#8185B2]/2 text-white w-full h-[95%] relative overflow-y-scroll ${
-        selectedUser ? "max-md:hidden" : ""
+      className={`bg-[#8185B2]/2 text-white w-full h-[95%] relative overflow-y-scroll 
       }`}
     >
       <div className="pt-16 flex flex-col items-center gap-2 texts-xs font-light mx-auto">

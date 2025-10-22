@@ -14,21 +14,24 @@ const Profile = ({ selectedUser, setSelectedUser }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-100 flex items-center justify-center">
-      <div className="absolute top-6 left-8 flex items-center gap-2">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 flex items-center justify-center">
+      <div
+        className="absolute top-6 left-8 flex items-center gap-2 cursor-pointer"
+        onClick={handlesubmit}
+      >
         <img
           src="/logo.png"
           alt="Logo"
           className="h-10 w-10 rounded-md shadow-md"
         />
-        <h1 className="text-xl font-semibold text-emerald-600 tracking-wide">
+        <h1 className="text-xl font-semibold text-white tracking-wide">
           Aeigos
         </h1>
       </div>
 
       {!selectedUser ? (
-        <div className="w-[420px] bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-emerald-100 p-8 flex flex-col items-center transition-transform duration-300 hover:scale-[1.01]">
-          <h2 className="text-2xl font-bold text-emerald-600 mb-4">
+        <div className="w-[420px] bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700 p-8 flex flex-col items-center transition-transform duration-300 hover:scale-[1.01]">
+          <h2 className="text-2xl font-bold text-white mb-4">
             Edit Your Profile
           </h2>
 
@@ -45,9 +48,9 @@ const Profile = ({ selectedUser, setSelectedUser }) => {
               <img
                 src={pic ? URL.createObjectURL(pic) : assets.avatar_icon}
                 alt="Profile"
-                className="w-28 h-28 rounded-full object-cover border-4 border-emerald-400 shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200"
+                className="w-28 h-28 rounded-full object-cover border-4 border-emerald-500 shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200"
               />
-              <span className="text-emerald-600 text-sm mt-2 hover:underline">
+              <span className="text-emerald-500 text-sm mt-2 hover:underline">
                 Change Picture
               </span>
             </label>
@@ -57,7 +60,7 @@ const Profile = ({ selectedUser, setSelectedUser }) => {
               type="text"
               value={name}
               placeholder="Update your name"
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 placeholder-gray-400"
+              className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-400"
             />
 
             <textarea
@@ -65,7 +68,7 @@ const Profile = ({ selectedUser, setSelectedUser }) => {
               value={bio}
               placeholder="Write something about yourself..."
               rows={4}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 placeholder-gray-400 resize-none"
+              className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-400 resize-none"
             />
 
             <button
@@ -77,7 +80,7 @@ const Profile = ({ selectedUser, setSelectedUser }) => {
           </form>
         </div>
       ) : (
-        <div className="text-center text-lg text-red-600 font-semibold">
+        <div className="text-center text-lg text-red-500 font-semibold">
           Please Login First
         </div>
       )}

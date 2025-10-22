@@ -13,8 +13,8 @@ const Home = () => {
         className={`w-[95%] sm:w-[85%] h-[90%] backdrop-blur-xl bg-white/10 border border-gray-600 shadow-2xl rounded-3xl grid ${
           selectedUser
             ? shows
-              ? "md:grid-cols-[1fr_1.5fr_1fr] xl:grid-cols-[1fr_2fr_1fr]" // 3 columns
-              : "md:grid-cols-[1fr_2fr]" // 2 columns when RightSide hidden
+              ? "md:grid-cols-[1fr_1.5fr_1fr] xl:grid-cols-[1fr_2fr_1fr]"
+              : "md:grid-cols-[1fr_2fr]"
             : "md:grid-cols-[1fr_1fr]"
         }`}
       >
@@ -25,7 +25,6 @@ const Home = () => {
             setSelectedUser={setSelectedUser}
           />
         </div>
-
         {/* Chat */}
         <div className="bg-transparent w-full h-full overflow-hidden">
           <ChatContainer
@@ -35,10 +34,12 @@ const Home = () => {
             shows={setshow}
           />
         </div>
-
-        {/* Right side */}
         {selectedUser && shows && (
-          <div className="bg-white/5 border-l border-gray-700 hidden md:block overflow-hidden">
+          <div
+            className={`bg-white/5 border-l border-gray-700 overflow-hidden ${
+              shows ? "block md:block" : "hidden md:block"
+            }`}
+          >
             <RightSide
               selectedUser={selectedUser}
               setSelectedUser={setSelectedUser}
