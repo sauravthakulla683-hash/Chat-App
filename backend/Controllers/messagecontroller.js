@@ -1,7 +1,6 @@
 const User = require("../models/user");
 const Message = require("../models/message");
 const cloudinary = require("../lib/cloudnary");
-const { io, userSocketMap } = require("../server");
 
 // Get users for sidebar with unseen messages count
 const getUserForSidebar = async (req, res) => {
@@ -72,14 +71,13 @@ const markMessageAsSeen = async (req, res) => {
   }
 };
 
-// Send a message to a selected user (supports text and optional image)
+// Send a message (HTTP fallback, no Socket.IO emit here)
 const sendMessage = async (req, res) => {
   try {
     const senderId = req.user._id;
     const { receiverId, text, image } = req.body;
     let imageUrl = "";
 
-    // Upload image to Cloudinary if provided
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
@@ -99,10 +97,6 @@ const sendMessage = async (req, res) => {
       seen: false,
     });
 
-    const receiverSocketId = userSocketMap[receiverId];
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage); // send the actual message
-    }
     return res.status(201).json({ success: true, message: newMessage });
   } catch (err) {
     console.error(err.message);

@@ -4,7 +4,7 @@ const {
   getMessages,
   markMessageAsSeen,
   sendMessage,
-} = require("../Controllers/messageControllers");
+} = require("../Controllers/messagecontroller");
 const protectRoute = require("../middleware/auth");
 
 const messageRouter = express.Router();

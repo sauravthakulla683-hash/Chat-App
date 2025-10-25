@@ -11,10 +11,7 @@ const connectDB = async () => {
     });
 
     // Connect to your MongoDB URI
-    await mongoose.connect(`${process.env.MONGODB_URL}/chat-app`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(`${process.env.MONGODB_URL}/chat-app`);
   } catch (err) {
     console.error("❌ Failed to connect to database:", err.message);
     process.exit(1);
