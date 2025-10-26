@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Sign Up");
@@ -6,13 +7,21 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [bio, setBio] = useState("");
-  const [isdatasubmitted, setisdatasubmitted] = useState(false);
+  const { login } = React.useContext(AuthContext);
 
-  const onsubmithandler = (event) => {
+  const onSubmitHandler = async (event) => {
     event.preventDefault();
-    if (currentState === "Sign Up" && !isdatasubmitted) {
-      setisdatasubmitted(true);
-      return;
+
+    if (currentState === "Sign Up") {
+      // signup first
+      await login("signup", { fullName, email, password, bio });
+      // then switch to login automatically
+      setCurrentState("Login");
+      setFullName("");
+      setBio("");
+    } else {
+      // login
+      await login("login", { email, password });
     }
   };
 
@@ -23,91 +32,78 @@ const Login = () => {
           <img src="/logo.png" alt="Logo" className="h-14 w-14" />
         </div>
 
-        <form onSubmit={onsubmithandler} className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold text-center text-gray-700 flex items-center justify-center gap-2">
+        <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
+          <h2 className="text-2xl font-semibold text-center text-gray-700">
             {currentState}
           </h2>
 
           {currentState === "Sign Up" && (
             <>
               <input
-                onChange={(e) => setFullName(e.target.value)}
                 value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 type="text"
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter your full name"
+                placeholder="Full Name"
                 required
+                className="border rounded-lg px-4 py-2"
               />
-
               <input
-                onChange={(e) => setBio(e.target.value)}
                 value={bio}
+                onChange={(e) => setBio(e.target.value)}
                 type="text"
-                placeholder="Where You from"
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Bio / Where You From"
+                className="border rounded-lg px-4 py-2"
               />
             </>
           )}
 
-          {!isdatasubmitted && (
-            <>
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-                type="email"
-                placeholder="Enter your email"
-                required
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            placeholder="Email"
+            required
+            className="border rounded-lg px-4 py-2"
+          />
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            type="password"
+            placeholder="Password"
+            required
+            className="border rounded-lg px-4 py-2"
+          />
 
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                type="password"
-                placeholder="Enter your password"
-                required
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </>
-          )}
           <button
-            className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer"
             type="submit"
+            className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md"
           >
             {currentState === "Sign Up" ? "Create Account" : "Login Now"}
           </button>
 
-          <div>
-            <input type="checkbox" required />
-            <p>Agree to the terms and services</p>
-          </div>
-          <div className="flex flex-col gap-2">
-            {currentState == "Sign Up" ? (
-              <p className="text-sm text-gray-600">
-                Already have an account{" "}
-                <span
-                  onClick={() => {
-                    setCurrentState("Login");
-                    setisdatasubmitted(false);
-                  }}
-                  className="font-medium text-violet-500 cursor-pointer"
+          <div className="flex justify-center text-sm mt-2">
+            {currentState === "Sign Up" ? (
+              <span>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  className="text-violet-500 font-medium"
+                  onClick={() => setCurrentState("Login")}
                 >
                   Login Here
-                </span>
-              </p>
+                </button>
+              </span>
             ) : (
-              <p className="text-sm text-gray-600">
-                Create an Account{" "}
-                <span
-                  onClick={() => {
-                    setCurrentState("Sign Up");
-                    setisdatasubmitted(false);
-                  }}
-                  className="font-medium text-violet-500 cursor-pointer"
+              <span>
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  className="text-violet-500 font-medium"
+                  onClick={() => setCurrentState("Sign Up")}
                 >
-                  Click Here
-                </span>
-              </p>
+                  Create Account
+                </button>
+              </span>
             )}
           </div>
         </form>

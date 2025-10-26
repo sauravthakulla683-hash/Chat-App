@@ -1,115 +1,136 @@
-const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const cloudinary = require("../lib/cloudnary"); // make sure the file name matches exactly
-const { generatetoken } = require("../lib/utils");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// 🟩 SIGNUP
-const signup = async (req, res) => {
-  const { fullName, email, password, bio } = req.body;
-
+// ====================== SIGNUP ======================
+exports.signup = async (req, res) => {
   try {
-    if (!fullName || !email || !password || !bio) {
-      return res.json({ success: false, message: "Missing details" });
+    const { fullName, email, password, bio } = req.body;
+
+    if (!fullName || !email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields required" });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.json({ success: false, message: "Account already exists" });
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
       fullName,
       email,
       password: hashedPassword,
-      bio,
+      bio: bio || "",
     });
 
-    const token = generatetoken(newUser._id);
-    return res.json({
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.status(201).json({
       success: true,
-      userData: newUser,
-      token,
       message: "Account created successfully",
+      user: newUser,
+      token,
     });
   } catch (err) {
-    console.error(err.message);
-    res.json({ success: false, message: err.message });
+    console.error("Signup error:", err.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Signup failed", error: err.message });
   }
 };
 
-// 🟩 LOGIN
-const login = async (req, res) => {
+// ====================== LOGIN ======================
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const userData = await User.findOne({ email });
 
-    if (!userData) {
-      return res.json({ success: false, message: "User not found" });
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields required" });
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, userData.password);
-    if (!isPasswordCorrect) {
-      return res.json({ success: false, message: "Invalid credentials" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
     }
 
-    const token = generatetoken(userData._id);
-    return res.json({
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect password" });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.json({
       success: true,
-      userData,
-      token,
       message: "Login successful",
+      user,
+      token,
     });
   } catch (err) {
-    console.error(err.message);
-    res.json({ success: false, message: err.message });
+    console.error("Login error:", err.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Login failed", error: err.message });
   }
 };
 
-// 🟩 CHECK AUTH
-const checkAuth = (req, res) => {
-  res.json({ success: true, user: req.user });
-};
-
-// 🟩 UPDATE PROFILE
-const updateProfile = async (req, res) => {
+// ====================== UPDATE PROFILE ======================
+exports.updateProfile = async (req, res) => {
   try {
-    const { pic, bio, fullName } = req.body;
-    const userID = req.user._id;
+    const { fullName, bio, pic } = req.body;
+    const userId = req.user._id;
 
-    let updateUser;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { fullName, bio, pic },
+      { new: true }
+    );
 
-    if (!pic) {
-      updateUser = await User.findByIdAndUpdate(
-        userID,
-        { bio, fullName },
-        { new: true }
-      );
-    } else {
-      const upload = await cloudinary.uploader.upload(pic);
-      updateUser = await User.findByIdAndUpdate(
-        userID,
-        {
-          profilePic: upload.secure_url,
-          bio,
-          fullName,
-        },
-        { new: true }
-      );
-    }
-
-    return res.json({
+    res.json({
       success: true,
-      user: updateUser,
-      message: "Profile updated",
+      message: "Profile updated successfully",
+      user: updatedUser,
     });
   } catch (err) {
-    console.error(err.message);
-    res.json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Profile update failed",
+      error: err.message,
+    });
   }
 };
 
-// 🟩 EXPORT ALL (CommonJS)
-module.exports = { signup, login, checkAuth, updateProfile };
+// ====================== CHECK AUTH ======================
+exports.checkAuth = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Auth check failed",
+      error: err.message,
+    });
+  }
+};

@@ -1,91 +1,116 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import assets from "../assets/assets";
+import { AuthContext } from "../../context/AuthContext";
 
-const Profile = ({ selectedUser, setSelectedUser }) => {
-  const [name, setname] = useState("Saurabh");
-  const [bio, setbio] = useState("Hello");
-  const [pic, setpic] = useState(null);
-  const navigate = useNavigate();
+const Login = () => {
+  const [currentState, setCurrentState] = useState("Sign Up"); // "Sign Up" or "Login"
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [bio, setBio] = useState("");
 
-  const handlesubmit = async (e) => {
-    e.preventDefault();
-    navigate("/");
+  const { login } = React.useContext(AuthContext);
+
+  const onsubmithandler = (event) => {
+    event.preventDefault();
+
+    const credentials =
+      currentState === "Sign Up"
+        ? { fullName, email, password, bio }
+        : { email, password };
+
+    login(currentState === "Sign Up" ? "signup" : "login", credentials);
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 flex items-center justify-center">
-      <div
-        className="absolute top-6 left-8 flex items-center gap-2 cursor-pointer"
-        onClick={handlesubmit}
-      >
-        <img
-          src="/logo.png"
-          alt="Logo"
-          className="h-10 w-10 rounded-md shadow-md"
-        />
-        <h1 className="text-xl font-semibold text-white tracking-wide">
-          Aeigos
-        </h1>
-      </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-lg rounded-2xl p-8 w-[90%] sm:w-[400px]">
+        <div className="flex justify-center mb-6">
+          <img src="/logo.png" alt="Logo" className="h-14 w-14" />
+        </div>
 
-      {!selectedUser ? (
-        <div className="w-[420px] bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700 p-8 flex flex-col items-center transition-transform duration-300 hover:scale-[1.01]">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Edit Your Profile
+        <form onSubmit={onsubmithandler} className="flex flex-col gap-4">
+          <h2 className="text-2xl font-semibold text-center text-gray-700 flex items-center justify-center gap-2">
+            {currentState}
           </h2>
 
-          <form
-            onSubmit={handlesubmit}
-            className="flex flex-col items-center gap-4 w-full"
-          >
-            <label className="cursor-pointer flex flex-col items-center">
+          {currentState === "Sign Up" && (
+            <>
               <input
-                onChange={(e) => setpic(e.target.files[0])}
-                type="file"
-                hidden
+                onChange={(e) => setFullName(e.target.value)}
+                value={fullName}
+                type="text"
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Enter your full name"
+                required
               />
-              <img
-                src={pic ? URL.createObjectURL(pic) : assets.avatar_icon}
-                alt="Profile"
-                className="w-28 h-28 rounded-full object-cover border-4 border-emerald-500 shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200"
+
+              <input
+                onChange={(e) => setBio(e.target.value)}
+                value={bio}
+                type="text"
+                placeholder="Where you from"
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              <span className="text-emerald-500 text-sm mt-2 hover:underline">
-                Change Picture
-              </span>
-            </label>
+            </>
+          )}
 
-            <input
-              onChange={(e) => setname(e.target.value)}
-              type="text"
-              value={name}
-              placeholder="Update your name"
-              className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-400"
-            />
+          <input
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+            type="email"
+            placeholder="Enter your email"
+            required
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
 
-            <textarea
-              onChange={(e) => setbio(e.target.value)}
-              value={bio}
-              placeholder="Write something about yourself..."
-              rows={4}
-              className="w-full p-3 rounded-lg border border-gray-700 bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-400 resize-none"
-            />
+          <input
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
+            type="password"
+            placeholder="Enter your password"
+            required
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
 
-            <button
-              type="submit"
-              className="w-full mt-2 bg-emerald-500 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-600 transition duration-200 shadow-md"
-            >
-              Save Profile
-            </button>
-          </form>
-        </div>
-      ) : (
-        <div className="text-center text-lg text-red-500 font-semibold">
-          Please Login First
-        </div>
-      )}
+          <button
+            className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer"
+            type="submit"
+          >
+            {currentState === "Sign Up" ? "Create Account" : "Login Now"}
+          </button>
+
+          <div>
+            <input type="checkbox" required />
+            <p>Agree to the terms and services</p>
+          </div>
+
+          <div className="flex flex-col gap-2 text-center">
+            {currentState === "Sign Up" ? (
+              <p className="text-sm text-gray-600">
+                Already have an account?{" "}
+                <span
+                  onClick={() => setCurrentState("Login")}
+                  className="font-medium text-violet-500 cursor-pointer"
+                >
+                  Login Here
+                </span>
+              </p>
+            ) : (
+              <p className="text-sm text-gray-600">
+                Create an account?{" "}
+                <span
+                  onClick={() => setCurrentState("Sign Up")}
+                  className="font-medium text-violet-500 cursor-pointer"
+                >
+                  Click Here
+                </span>
+              </p>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default Profile;
+export default Login;
