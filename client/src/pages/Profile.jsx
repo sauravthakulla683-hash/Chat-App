@@ -1,116 +1,120 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
-  const [currentState, setCurrentState] = useState("Sign Up"); // "Sign Up" or "Login"
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const EditProfile = () => {
+  const { updateprofile, authUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+  const [selectedImg, setSelectedImg] = useState(null);
+  const [preview, setPreview] = useState("/default-avatar.png");
+  const [loading, setLoading] = useState(false);
 
-  const { login } = React.useContext(AuthContext);
+  // Prefill data when authUser is available
+  useEffect(() => {
+    if (authUser) {
+      setName(authUser.fullName || "");
+      setBio(authUser.bio || "");
+      setPreview(authUser.pic || "/default-avatar.png");
+    }
+  }, [authUser]);
 
-  const onsubmithandler = (event) => {
-    event.preventDefault();
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedImg(file);
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
-    const credentials =
-      currentState === "Sign Up"
-        ? { fullName, email, password, bio }
-        : { email, password };
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (err) => reject(err);
+    });
+  };
 
-    login(currentState === "Sign Up" ? "signup" : "login", credentials);
+  const onsubmithandler = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const data = { fullName: name, bio };
+
+      if (selectedImg) {
+        data.pic = await convertToBase64(selectedImg);
+      }
+
+      // Make sure updateprofile returns a Promise
+      await updateprofile(data);
+
+      // Navigate after update completes
+      navigate("/");
+    } catch (err) {
+      console.error("Update failed:", err);
+      alert("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-[90%] sm:w-[400px]">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-blue-100">
+      <div className="bg-white shadow-2xl rounded-3xl p-8 w-[90%] max-w-md">
+        <h2 className="text-3xl font-bold text-center text-gray-700 mb-6">
+          Edit Profile
+        </h2>
+
         <div className="flex justify-center mb-6">
-          <img src="/logo.png" alt="Logo" className="h-14 w-14" />
+          <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-purple-400">
+            <img
+              src={preview}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
 
         <form onSubmit={onsubmithandler} className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold text-center text-gray-700 flex items-center justify-center gap-2">
-            {currentState}
-          </h2>
-
-          {currentState === "Sign Up" && (
-            <>
-              <input
-                onChange={(e) => setFullName(e.target.value)}
-                value={fullName}
-                type="text"
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter your full name"
-                required
-              />
-
-              <input
-                onChange={(e) => setBio(e.target.value)}
-                value={bio}
-                type="text"
-                placeholder="Where you from"
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </>
-          )}
-
           <input
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            type="email"
-            placeholder="Enter your email"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            type="text"
+            placeholder="Full Name"
             required
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
 
           <input
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            type="password"
-            placeholder="Enter your password"
-            required
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            type="text"
+            placeholder="Bio / Where you from"
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
+
+          <input
+            onChange={handleImageChange}
+            type="file"
+            accept="image/*"
+            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
 
           <button
-            className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer"
             type="submit"
+            disabled={loading}
+            className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white font-semibold rounded-xl hover:scale-105 transform transition duration-200"
           >
-            {currentState === "Sign Up" ? "Create Account" : "Login Now"}
+            {loading ? "Updating..." : "Update Profile"}
           </button>
-
-          <div>
-            <input type="checkbox" required />
-            <p>Agree to the terms and services</p>
-          </div>
-
-          <div className="flex flex-col gap-2 text-center">
-            {currentState === "Sign Up" ? (
-              <p className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <span
-                  onClick={() => setCurrentState("Login")}
-                  className="font-medium text-violet-500 cursor-pointer"
-                >
-                  Login Here
-                </span>
-              </p>
-            ) : (
-              <p className="text-sm text-gray-600">
-                Create an account?{" "}
-                <span
-                  onClick={() => setCurrentState("Sign Up")}
-                  className="font-medium text-violet-500 cursor-pointer"
-                >
-                  Click Here
-                </span>
-              </p>
-            )}
-          </div>
         </form>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default EditProfile;
